@@ -1,0 +1,98 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Brand {
+  id: Int!
+  name: String!
+  products: [Product!]
+}
+
+type Color {
+  id: Int!
+  name: String!
+  products: [Product!]
+}
+
+input CreateBrandInput {
+  name: String!
+}
+
+input CreateColorInput {
+  name: String!
+}
+
+input CreateModelInput {
+  name: String!
+}
+
+input CreateProductDto {
+  brand: String!
+  color: String!
+  model: String!
+  pares: Int!
+  qrCode: String
+  size: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Model {
+  id: Int!
+  name: String!
+}
+
+type Mutation {
+  createBrand(createBrandInput: CreateBrandInput!): Brand!
+  createColor(createColorInput: CreateColorInput!): Color!
+  createModel(createModelInput: CreateModelInput!): Model!
+  createProducts(products: [CreateProductDto!]!): [Product!]!
+  registerSale(input: RegisterSaleDto!): Sale
+  returnProduct(productIds: [Float!]!): Sale!
+  updateProductsLocation(location: String!, productIds: [Int!]!): [Product!]!
+}
+
+type Product {
+  brand: Brand!
+  color: Color!
+  id: Float!
+  isSold: Boolean!
+  location: String!
+  model: Model!
+  sale: Sale
+  size: String!
+}
+
+type Query {
+  findAllBrands: [Brand!]!
+  findAllColors: [Color!]!
+  findAllModels: [Model!]!
+  findColor(id: Float!): Color
+  findModel(id: Float!): Model
+  getAllProducts: [Product!]!
+  getProductById(id: Float!): Product!
+  shoesInStore: [Product!]!
+  shoesInWarehouse: [Product!]!
+  soldShoes: [Product!]!
+}
+
+input RegisterSaleDto {
+  buyerEmail: String!
+  buyerId: String!
+  buyerName: String!
+  price: String!
+  productIds: [Float!]!
+}
+
+type Sale {
+  buyerEmail: String!
+  buyerId: String!
+  buyerName: String!
+  id: ID!
+  price: String
+  products: [Product]
+  soldAt: DateTime!
+}
