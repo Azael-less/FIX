@@ -1,5 +1,5 @@
 # Mutaciones
-
+## Crear Productos
 mutation {
   createProducts(
     products: [
@@ -29,7 +29,7 @@ mutation {
     size
   }
 }
-
+## Registrar Venta
 mutation {
   registerSale(
     input: {
@@ -56,28 +56,28 @@ mutation {
     }
   }
 }
-
+## Crear Marca
 mutation {
   createBrand(createBrandInput: { name: "Nike" }) {
     id
     name
   }
 }
-
+## Crear Modelo
 mutation {
   createModel(createModelInput: { name: "Air Max" }) {
     id
     name
   }
 }
-
+## Crear Color
 mutation {
   createColor(createColorInput: { name: "Rojo" }) {
     id
     name
   }
 }
-
+## Actualizar Ubicación de Productos
 mutation {
   updateProductsLocation(location: "store", productIds: [42130, 66103]) {
     id
@@ -95,7 +95,7 @@ mutation {
     location
   }
 }
-
+## Devolver Producto
 mutation {
   returnProduct(productIds: [83511, 78170]) {
     id
@@ -111,9 +111,8 @@ mutation {
     }
   }
 }
-
-# Queries
-
+# Consultas
+## Obtener Todos los Productos
 query {
   getAllProducts {
     id
@@ -131,25 +130,25 @@ query {
     isSold
   }
 }
-
+## Obtener Todos los Colores
 query {
   findAllColors {
     name
   }
 }
-
+## Obtener Todas las Marcas
 query {
   findAllBrands {
     name
   }
 }
-
+## Obtener Todos los Modelos
 query {
   findAllModels {
     name
   }
 }
-
+## Zapatos Vendidos
 query {
   soldShoes {
     id
@@ -165,7 +164,7 @@ query {
     size
   }
 }
-
+## Zapatos en Almacén
 query {
   shoesInWarehouse {
     id
@@ -181,7 +180,7 @@ query {
     size
   }
 }
-
+## Zapatos en Tienda
 query {
   shoesInStore {
     id
