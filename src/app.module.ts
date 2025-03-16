@@ -26,6 +26,7 @@ import { SaleModule } from './sale/sale.module';
       path: '/api/v1/graphql',
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
+      csrfPrevention: false,
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
