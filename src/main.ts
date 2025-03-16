@@ -12,6 +12,7 @@ async function bootstrap() {
     origin: process.env.CORS_ORIGIN || '*', // Ajusta en producción
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-apollo-operation-name', 'apollo-require-preflight'],
   });
 
   const port = process.env.PORT || 3000;
