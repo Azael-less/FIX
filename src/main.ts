@@ -3,9 +3,20 @@ import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 
 async function bootstrap() {
-  dotenv.config();
+  dotenv.config(); // Cargar variables de entorno
 
   const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.PORT ?? 3000);
+
+  // Habilitar CORS
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN || '*', // Ajusta en producción
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
+
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+  console.log(`🚀 Server running on http://localhost:${port}`);
 }
+
 bootstrap();
