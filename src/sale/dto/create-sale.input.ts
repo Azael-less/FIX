@@ -10,7 +10,7 @@ export class ProductSaleInput {
 
   @Field()
   @IsNotEmpty()
-  price: string;
+  price: number;
 }
 
 @InputType()

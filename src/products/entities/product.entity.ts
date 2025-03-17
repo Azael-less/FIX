@@ -1,4 +1,4 @@
-import { ObjectType, Field } from '@nestjs/graphql';
+import { ObjectType, Field, Int } from '@nestjs/graphql';
 import { Entity, PrimaryColumn, Column, ManyToOne, BeforeInsert, JoinColumn } from 'typeorm';
 import { Brand } from 'src/brand/entities/brand.entity';
 import { Model } from 'src/model/entities/model.entity';
@@ -41,9 +41,9 @@ export class Product {
   @JoinColumn()
   sale?: Sale;
 
-  @Field(() => String, { nullable: true })
-  @Column({ type: 'varchar', nullable: true })
-  priceAtSale?: string; // Se almacena el precio individual (por ejemplo "$50.99")
+  @Field(() => Int, { nullable: true })
+  @Column({ type: 'int', nullable: true })
+  priceAtSale?: number; // Se almacena el precio individual (por ejemplo "$50.99")
 
   @BeforeInsert()
   generateId() {

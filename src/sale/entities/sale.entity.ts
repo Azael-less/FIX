@@ -21,8 +21,8 @@ export class Sale {
 
   // Se almacena el precio total formateado, por ejemplo: "$1999.00"
   @Field({ nullable: true })
-  @Column({ type: 'varchar', nullable: true })
-  price?: string;
+  @Column({ type: 'int', nullable: true })
+  price?: number;
 
   @Field()
   @Column()

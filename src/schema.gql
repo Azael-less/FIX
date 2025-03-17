@@ -62,14 +62,14 @@ type Product {
   isSold: Boolean!
   location: String!
   model: Model!
-  priceAtSale: String
+  priceAtSale: Int
   sale: Sale
   size: String!
 }
 
 input ProductSaleInput {
   id: String!
-  price: String!
+  price: Float!
 }
 
 type Query {
@@ -97,7 +97,7 @@ type Sale {
   buyerId: String!
   buyerName: String!
   id: ID!
-  price: String
+  price: Float
   products: [Product]
   soldAt: DateTime!
 }
