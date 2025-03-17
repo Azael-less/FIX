@@ -23,7 +23,9 @@ async registerSale(@Args('input') input: RegisterSaleDto): Promise<Sale | null> 
   
 
   @Mutation(() => Sale)
-  async returnProduct(@Args('productIds', { type: () => [Number] }) productIds: number[]) {
+  async returnProduct(
+    @Args('productIds', { type: () => [String] }) productIds: string[]
+  ) {
     try {
       return await this.saleService.returnProducts(productIds);
     } catch (error) {

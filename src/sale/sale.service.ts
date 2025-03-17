@@ -20,118 +20,154 @@ export class SaleService {
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
   ) {}
-
   async registerSale(input: RegisterSaleDto): Promise<Sale | null> {
     try {
+      // Extraer IDs y convertir a números
+      const productIds = input.products.map((p) => parseInt(p.id, 10));
+
+      // Buscar productos en la base de datos
       const products = await this.productRepository.find({
-        where: { id: In(input.productIds) },
+        where: { id: In(productIds) },
         relations: ['model'],
       });
-  
-      // Validar que todos los productos existen
-      if (products.length !== input.productIds.length) {
+
+      if (products.length !== productIds.length) {
         console.error('Uno o más productos no existen');
         return null;
       }
-  
-      // Verificar si alguno ya está vendido
+
       if (products.some((product) => product.isSold)) {
         console.error('Uno o más productos ya han sido vendidos');
         return null;
       }
-  
+
+      // Calcular el precio total y asignar el precio a cada producto
+      let totalPrice = 0;
+      const productPriceMap = new Map<number, string>();
+      for (const inputProduct of input.products) {
+        const id = parseInt(inputProduct.id, 10);
+        // Asumimos que el precio viene formateado, por ejemplo "$50.99". Quitamos el símbolo "$" para el cálculo.
+        const priceNumber = parseFloat(inputProduct.price.replace('$', ''));
+        totalPrice += priceNumber;
+        productPriceMap.set(id, inputProduct.price); // Guardamos el precio original como string
+      }
+
+      // Asignar el precio individual a cada producto
+      for (const product of products) {
+        product.priceAtSale = productPriceMap.get(product.id) || null;
+      }
+
+      // Formatear el total como string, por ejemplo "$1999.00"
+      const totalPriceString = `$${totalPrice.toFixed(2)}`;
+
       // Crear la venta
       const sale = this.saleRepository.create({
         buyerName: input.buyerName,
         buyerEmail: input.buyerEmail,
         buyerId: input.buyerId,
         products,
-        price: input.price,
+        price: totalPriceString,
       });
-  
+
       await this.saleRepository.save(sale);
-  
-      // Marcar los productos como vendidos
+
+      // Marcar los productos como vendidos, asignar la venta y cambiar la ubicación a "vendido"
       for (const product of products) {
         product.isSold = true;
         product.sale = sale;
+        product.location = 'vendido'; // Actualizamos la ubicación a "vendido"
       }
-  
       await this.productRepository.save(products);
-  
+
       return sale;
     } catch (error) {
       console.error('Error en registerSale Service:', error.message);
       return null;
     }
   }
-  
-  async returnProducts(productIds: number[]): Promise<Sale> {
+
+  async returnProducts(productIds: string[]): Promise<Sale> {
     try {
       // Validar que se envíen IDs
       if (!productIds || productIds.length === 0) {
         throw new BadRequestException('Debe proporcionar al menos un ID de producto.');
       }
   
-      // Buscar los productos con sus ventas asociadas
-      const products = await this.productRepository.find({
-        where: { id: In(productIds) },
-        relations: ['sale'],
+      // Convertir cada id (string) a número
+      const parsedIds = productIds.map((id) => {
+        const num = parseInt(id, 10);
+        if (isNaN(num)) {
+          throw new BadRequestException(`El id '${id}' no es un número válido.`);
+        }
+        return num;
       });
   
-      // Validación: verificar si se encontraron productos
+      // Buscar los productos con sus ventas y demás relaciones necesarias
+      const products = await this.productRepository.find({
+        where: { id: In(parsedIds) },
+        relations: ['sale', 'brand', 'model', 'color'],
+      });
+  
       if (products.length === 0) {
-        throw new NotFoundException(`No se encontraron productos con los IDs proporcionados.`);
+        throw new NotFoundException('No se encontraron productos con los IDs proporcionados.');
       }
   
-      // Validación: verificar que los productos tengan una venta asociada
+      // Verificar que todos los productos tengan una venta asociada
       if (products.some((product) => !product.sale)) {
-        throw new BadRequestException(`Uno o más productos seleccionados no están vendidos.`);
+        throw new BadRequestException('Uno o más productos seleccionados no están vendidos.');
       }
   
-      // Obtener el ID de la venta de referencia
+      // Se asume que todos los productos pertenecen a la misma venta
       const sale = products[0].sale;
       const saleId = sale.id;
   
-      // Validación: asegurar que todos los productos pertenezcan a la misma venta
       if (products.some((product) => product.sale.id !== saleId)) {
-        throw new BadRequestException(`No todos los productos pertenecen a la misma venta.`);
+        throw new BadRequestException('No todos los productos pertenecen a la misma venta.');
       }
   
-      console.log(`Devolviendo productos de la venta con ID: ${saleId}`);
+      console.log(`Procesando devolución de productos de la venta con ID: ${saleId}`);
   
-      // Obtener todos los productos de esta venta
+      // Obtener todos los productos asociados a la venta para determinar si se devuelven todos
       const allProductsInSale = await this.productRepository.find({
         where: { sale: { id: saleId } },
       });
   
-      // Si todas las validaciones pasaron, proceder con la lógica
+      // Calcular el monto a reembolsar sumando los precios de los productos devueltos.
+      // Se asume que el precio individual está almacenado como string (ej: "$50.99")
+      let refundAmount = 0;
       for (const product of products) {
-        product.sale = null;
-        product.isSold = false;
+        if (product.priceAtSale) {
+          refundAmount += parseFloat(product.priceAtSale.replace('$', ''));
+        }
       }
   
-      await this.productRepository.save(products);
+      // Actualizar directamente en la BD: desligar los productos de la venta,
+      // marcarlos como no vendidos y cambiar su ubicación a "bodega"
+      const returnedProductIds = products.map((product) => product.id);
+      await this.productRepository.update(
+        { id: In(returnedProductIds) },
+        { sale: null, isSold: false, location: "bodega" }
+      );
   
-      // Si no quedan productos en la venta, eliminar la venta
+      // Si se devuelven todos los productos de la venta, se elimina la venta
       if (allProductsInSale.length === products.length) {
         await this.saleRepository.remove(sale);
       }
   
-      // Retornar los datos de la venta antes de su eliminación
+      // Construir el objeto de respuesta similar a una factura
       return {
         id: saleId,
         buyerName: sale.buyerName,
         buyerEmail: sale.buyerEmail,
         buyerId: sale.buyerId,
         soldAt: sale.soldAt,
-        price: sale.price,
+        price: sale.price, // Precio total de la venta original
         products,
       };
     } catch (error) {
       console.error('Error en returnProducts:', error);
       throw error instanceof HttpException
-        ? error // Si es una excepción controlada, la relanzamos
+        ? error
         : new InternalServerErrorException('Ocurrió un error al procesar la devolución.');
     }
   }

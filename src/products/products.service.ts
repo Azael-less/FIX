@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from '../products/entities/product.entity';
@@ -92,22 +92,32 @@ export class ProductService {
     return product;
   }
 
-  async updateProductsLocation(productIds: number[], location: "store" | "warehouse"): Promise<Product[]> {
+  async updateProductsLocation(productIds: string[], location: "store" | "bodega"): Promise<Product[]> {
+    // Convertir cada ID de string a number y validar que sean números válidos
+    const parsedIds = productIds.map(id => {
+      const num = parseInt(id, 10);
+      if (isNaN(num)) {
+        throw new BadRequestException(`El id '${id}' no es un número válido.`);
+      }
+      return num;
+    });
+  
     const products = await this.productRepository.find({
-      where: { id: In(productIds) },
+      where: { id: In(parsedIds) },
     });
   
     if (products.length === 0) {
-      throw new NotFoundException(`No products found for the provided IDs.`);
+      throw new NotFoundException(`No se encontraron productos para los IDs proporcionados.`);
     }
   
-    // Actualizar la ubicación de todos los productos
+    // Actualizar la ubicación de cada producto
     products.forEach((product) => {
       product.location = location;
     });
   
     return this.productRepository.save(products);
   }
+  
   
   
   async findShoesInStore(): Promise<Product[]> {
@@ -124,7 +134,7 @@ export class ProductService {
 
   async findShoesInWarehouse(): Promise<Product[]> {
     return await this.productRepository.find({
-      where: { location: 'warehouse', isSold: false },
+      where: { location: 'bodega', isSold: false },
     });
   
   

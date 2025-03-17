@@ -1,5 +1,17 @@
 import { InputType, Field } from '@nestjs/graphql';
-import { IsNotEmpty, IsString, IsArray } from 'class-validator';
+import { IsNotEmpty, IsArray, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+
+@InputType()
+export class ProductSaleInput {
+  @Field()
+  @IsNotEmpty()
+  id: string;
+
+  @Field()
+  @IsNotEmpty()
+  price: string;
+}
 
 @InputType()
 export class RegisterSaleDto {
@@ -12,11 +24,9 @@ export class RegisterSaleDto {
   @Field()
   buyerId: string;
 
-  @Field(() => [Number]) // Se recibe un array de IDs de productos
-  productIds: number[];
-
-  @Field()
-  @IsNotEmpty()
-  @IsString() 
-  price: string;
+  @Field(() => [ProductSaleInput])
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProductSaleInput)
+  products: ProductSaleInput[];
 }

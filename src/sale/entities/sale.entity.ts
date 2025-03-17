@@ -4,7 +4,6 @@ import {
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
-  JoinTable,
   CreateDateColumn,
 } from 'typeorm';
 import { Product } from '../../products/entities/product.entity';
@@ -18,26 +17,26 @@ export class Sale {
 
   @Field(() => [Product], { nullable: 'itemsAndList' })
   @OneToMany(() => Product, (product) => product.sale)
-  @JoinTable()
   products?: Product[];
 
-  @Field(() => String, {nullable: true})
-  @Column({ type: 'varchar' }) // Almacenar como texto
+  // Se almacena el precio total formateado, por ejemplo: "$1999.00"
+  @Field({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   price?: string;
 
   @Field()
   @Column()
-  buyerName: string; // Correo del comprador
+  buyerName: string;
 
   @Field()
   @Column()
-  buyerEmail: string; // Correo del comprador
+  buyerEmail: string;
 
   @Field()
   @Column()
-  buyerId: string; // Cédula del comprador
+  buyerId: string;
 
   @Field(() => Date)
   @CreateDateColumn()
-  soldAt: Date; // Fecha y hora de la venta
+  soldAt: Date;
 }

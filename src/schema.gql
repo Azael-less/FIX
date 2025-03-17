@@ -51,8 +51,8 @@ type Mutation {
   createModel(createModelInput: CreateModelInput!): Model!
   createProducts(products: [CreateProductDto!]!): [Product!]!
   registerSale(input: RegisterSaleDto!): Sale
-  returnProduct(productIds: [Float!]!): Sale!
-  updateProductsLocation(location: String!, productIds: [Int!]!): [Product!]!
+  returnProduct(productIds: [String!]!): Sale!
+  updateProductsLocation(location: String!, productIds: [String!]!): [Product!]!
 }
 
 type Product {
@@ -62,8 +62,14 @@ type Product {
   isSold: Boolean!
   location: String!
   model: Model!
+  priceAtSale: String
   sale: Sale
   size: String!
+}
+
+input ProductSaleInput {
+  id: String!
+  price: String!
 }
 
 type Query {
@@ -83,8 +89,7 @@ input RegisterSaleDto {
   buyerEmail: String!
   buyerId: String!
   buyerName: String!
-  price: String!
-  productIds: [Float!]!
+  products: [ProductSaleInput!]!
 }
 
 type Sale {

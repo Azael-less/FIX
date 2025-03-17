@@ -27,12 +27,13 @@ export class ProductResolver {
   }
 
   @Mutation(() => [Product]) // Devuelve una lista de productos
-  async updateProductsLocation(
-    @Args('location') location: string,
-    @Args({ name: 'productIds', type: () => [Int] }) productIds: number[],
-  ): Promise<Product[]> {
-    return this.productService.updateProductsLocation(productIds, location as "store" | "warehouse");
-  }
+async updateProductsLocation(
+  @Args('location') location: string,
+  @Args({ name: 'productIds', type: () => [String] }) productIds: string[],
+): Promise<Product[]> {
+  return this.productService.updateProductsLocation(productIds, location as "store" | "bodega");
+}
+
   
 
 @Query(() => [Product])
