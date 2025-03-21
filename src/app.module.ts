@@ -31,10 +31,9 @@ import { SaleModule } from './sale/sale.module';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: process.env.DATABASE_URL, 
+      url: process.env.DATABASE_URL_DESARROLLO, 
       autoLoadEntities: true,
       synchronize: true, 
-      // dropSchema: true,
       entities: [Product, Brand, Model, Color, SaleModule],
     }), ProductModule, BrandModule, ModelModule, ColorModule, SaleModule,
   ],
