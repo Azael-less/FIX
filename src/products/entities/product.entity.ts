@@ -1,5 +1,5 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { Entity, PrimaryColumn, Column, ManyToOne, BeforeInsert, JoinColumn } from 'typeorm';
+import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Brand } from 'src/brand/entities/brand.entity';
 import { Model } from 'src/model/entities/model.entity';
 import { Color } from 'src/color/entities/color.entity';
@@ -10,7 +10,7 @@ import { Sale } from '../../sale/entities/sale.entity';
 export class Product {
   @Field()
   @PrimaryColumn() 
-  id: number;
+  id: number; // Se asignará manualmente en el servicio
 
   @Field(() => Brand)
   @ManyToOne(() => Brand, (brand) => brand.products, { eager: true })
@@ -44,9 +44,4 @@ export class Product {
   @Field(() => Int, { nullable: true })
   @Column({ type: 'int', nullable: true })
   priceAtSale?: number; // Se almacena el precio individual (por ejemplo "$50.99")
-
-  @BeforeInsert()
-  generateId() {
-    this.id = Math.floor(10000 + Math.random() * 90000);
-  }
 }

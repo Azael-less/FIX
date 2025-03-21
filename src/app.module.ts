@@ -34,7 +34,6 @@ import { SaleModule } from './sale/sale.module';
       url: process.env.DATABASE_URL, 
       autoLoadEntities: true,
       synchronize: true, 
-      // dropSchema: true,
       entities: [Product, Brand, Model, Color, SaleModule],
     }), ProductModule, BrandModule, ModelModule, ColorModule, SaleModule,
   ],
