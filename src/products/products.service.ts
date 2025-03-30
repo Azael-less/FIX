@@ -154,6 +154,7 @@ export class ProductService {
 
   async findShoesSold(): Promise<Product[]> {
     return await this.productRepository.find({
+      relations: ['sale'],
       where: { isSold: true },
     });
   }
