@@ -146,13 +146,13 @@ export class SaleService {
     const returnedProductIds = products.map((product) => product.id);
     await this.productRepository.update(
       { id: In(returnedProductIds) },
-      { sale: null, isSold: false, location: "bodega" }
+      { isSold: false, location: "bodega" }
     );
 
     // Si se devuelven todos los productos de la venta, se elimina la venta
-    if (allProductsInSale.length === products.length) {
-      await this.saleRepository.remove(sale);
-    }
+   // if (allProductsInSale.length === products.length) {
+   //   await this.saleRepository.remove(sale);
+   // }
 
     // Construir el objeto de respuesta similar a una factura
     return {
